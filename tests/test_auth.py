@@ -87,3 +87,24 @@ def test_successful_login_clears_previous_failed_attempts():
     result = auth.authenticate("alice", "Alice123!Secure")
     assert result["success"] is True
     assert "alice" not in auth.attempts
+
+
+def test_same_password_produces_different_stored_values():
+    # Arrange
+    password = "SharedPassword123!"
+    # Act
+    assert auth.register_user("dave", password) is True
+    assert auth.register_user("erin", password) is True
+    # Assert : un sel aleatoire different par compte
+    assert auth.users["dave"] != auth.users["erin"]
+
+
+def test_lockout_of_one_user_does_not_affect_another_user():
+    # Arrange : alice et bob sont deja crees par conftest.py
+    # Act : on verrouille alice
+    for _ in range(auth.MAX_ATTEMPTS):
+        auth.authenticate("alice", "WrongPassword123!")
+    # Assert : alice est bloquee, bob peut toujours se connecter
+    assert auth.authenticate("alice", "Alice123!Secure")["success"] is False
+    assert auth.authenticate("bob", "Bob123456!Secure")["success"] is True
+
