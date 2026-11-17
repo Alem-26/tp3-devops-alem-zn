@@ -79,7 +79,7 @@ def authenticate(username: Any, password: Any) -> dict[str, Any]:
 
 def _record_failure(username: str, now: float) -> None:
     attempts[username] = attempts.get(username, 0) + 1
-    if attempts[username] > MAX_ATTEMPTS:
+    if attempts[username] >= MAX_ATTEMPTS:
         blocked_until[username] = now + LOCKOUT_SECONDS
 
 
